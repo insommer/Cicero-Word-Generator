@@ -830,13 +830,14 @@ namespace AtticusServer
                         {
                             messageLog(this, new MessageEvent("Generating rs232 buffer for rs232 ID " + rs232ID));
                             HardwareChannel hc = usedRS232Channels[rs232ID];
-                            //NationalInstruments.VisaNS.SerialSession device = new NationalInstruments.VisaNS.SerialSession(hc.ChannelName);
+                            //NationalInstruments.VisaNS.UsbSession device = new NationalInstruments.VisaNS.UsbSession(hc.ChannelName);
 
-                            NationalInstruments.VisaNS.SerialSession device;
+                            //NationalInstruments.VisaNS.UsbSession device;
+                            NationalInstruments.VisaNS.UsbSession device;
 
                             try
                             {
-                                device = getSerialSession(hc);
+                                device = getUsbSession(hc);
                             }
                             catch (Exception e)
                             {
@@ -1119,21 +1120,21 @@ namespace AtticusServer
             }
         }
 
-        private Dictionary<HardwareChannel, NationalInstruments.VisaNS.SerialSession> serialSessions;
+        private Dictionary<HardwareChannel, NationalInstruments.VisaNS.UsbSession> usbSessions;
 
-        private NationalInstruments.VisaNS.SerialSession getSerialSession(HardwareChannel hc)
+        private NationalInstruments.VisaNS.UsbSession getUsbSession(HardwareChannel hc)
         {
 
-            if (serialSessions == null)
-                serialSessions = new Dictionary<HardwareChannel, NationalInstruments.VisaNS.SerialSession>();
+            if (usbSessions == null)
+                usbSessions = new Dictionary<HardwareChannel, NationalInstruments.VisaNS.UsbSession>();
 
-            if (!serialSessions.ContainsKey(hc))
+            if (!usbSessions.ContainsKey(hc))
             {
-                NationalInstruments.VisaNS.SerialSession device = (NationalInstruments.VisaNS.SerialSession)NationalInstruments.VisaNS.ResourceManager.GetLocalManager().Open(hc.ChannelName, NationalInstruments.VisaNS.AccessModes.LoadConfig, 100);
-                serialSessions.Add(hc, device);
+                NationalInstruments.VisaNS.UsbSession device = (NationalInstruments.VisaNS.UsbSession)NationalInstruments.VisaNS.ResourceManager.GetLocalManager().Open(hc.ChannelName, NationalInstruments.VisaNS.AccessModes.LoadConfig, 100);
+                usbSessions.Add(hc, device);
             }
 
-            return serialSessions[hc];
+            return usbSessions[hc];
 
 
             // figure out if this device needs its settings modified...
@@ -1161,11 +1162,11 @@ namespace AtticusServer
                         }*/
         }
 
-        private void clearOpenSerialSessions()
+        private void clearOpenusbSessions()
         {
-            if (serialSessions != null)
+            if (usbSessions != null)
             {
-                serialSessions.Clear();
+                usbSessions.Clear();
             }
         }
 
@@ -1388,7 +1389,7 @@ namespace AtticusServer
                             RS232GroupChannelData channelData = rs232Group.ChannelDatas[channelID];
                             if (channelData.DataType == RS232GroupChannelData.RS232DataType.Raw)
                             {
-                                NationalInstruments.VisaNS.SerialSession ss = getSerialSession(hc);
+                                NationalInstruments.VisaNS.UsbSession ss = getUsbSession(hc);
                                 ss.Write(RS232Task.AddNewlineCharacters(channelData.RawString));
                                 messageLog(this, new MessageEvent("Wrote rs232 command " + channelData.RawString));
                             }
@@ -1398,7 +1399,7 @@ namespace AtticusServer
                                 {
                                     foreach (StringParameterString sps in channelData.StringParameterStrings)
                                     {
-                                        NationalInstruments.VisaNS.SerialSession ss = getSerialSession(hc);
+                                        NationalInstruments.VisaNS.UsbSession ss = getUsbSession(hc);
                                         string rawCommand = sps.ToString();
                                         string command = RS232Task.AddNewlineCharacters(rawCommand);
                                         ss.Write(command);
@@ -2180,7 +2181,7 @@ namespace AtticusServer
             if (this.madeConnections != null)
                 this.madeConnections.Clear();
 
-            clearOpenSerialSessions();
+            clearOpenusbSessions();
         }
 
         /// <summary>
@@ -2633,9 +2634,11 @@ namespace AtticusServer
                             NationalInstruments.VisaNS.HardwareInterfaceType hType;
                             short chanNum;
                             VisaRescources.ParseResource(s, out hType, out chanNum);
-                            if (hType == NationalInstruments.VisaNS.HardwareInterfaceType.Serial)
+                            //if (hType == NationalInstruments.VisaNS.HardwareInterfaceType.Serial)
+                            if (hType == NationalInstruments.VisaNS.HardwareInterfaceType.Usb)
                             {
-                                NationalInstruments.VisaNS.SerialSession ss = (NationalInstruments.VisaNS.SerialSession)NationalInstruments.VisaNS.ResourceManager.GetLocalManager().Open(s);
+                                //NationalInstruments.VisaNS.UsbSession ss = (NationalInstruments.VisaNS.UsbSession)NationalInstruments.VisaNS.ResourceManager.GetLocalManager().Open(s);
+                                NationalInstruments.VisaNS.UsbSession ss = (NationalInstruments.VisaNS.UsbSession)NationalInstruments.VisaNS.ResourceManager.GetLocalManager().Open(s);
 
 
 
@@ -2655,6 +2658,10 @@ namespace AtticusServer
 
                                 ss.Dispose();
 
+                            }
+                            else
+                            {
+                                System.Console.WriteLine("... not serial. Type = "+ hType.ToString());
                             }
                         }
                         catch (Exception e)
