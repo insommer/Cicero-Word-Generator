@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using DataStructures;
-using com.opalkelly.frontpanel;
+using OpalKelly.FrontPanel;
 using System.Threading;
 
 namespace AtticusServer
@@ -196,7 +196,7 @@ namespace AtticusServer
         public FpgaTimebaseTask(DeviceSettings deviceSettings, okCFrontPanel opalKellyDevice, SequenceData sequence, double masterClockPeriod, out int nSegments, bool useRfModulation, bool assymetric)
             : base()
         {
-            com.opalkelly.frontpanel.okCFrontPanel.ErrorCode errorCode;
+            OpalKelly.FrontPanel.okCFrontPanel.ErrorCode errorCode;
 
             this.opalKellyDevice = opalKellyDevice;
 
@@ -246,7 +246,7 @@ namespace AtticusServer
 
         private void setWireInValue(int address, UInt16 value)
         {
-            com.opalkelly.frontpanel.okCFrontPanel.ErrorCode errorCode;
+            OpalKelly.FrontPanel.okCFrontPanel.ErrorCode errorCode;
             errorCode = opalKellyDevice.SetWireInValue(address, value);
 
             if (errorCode != okCFrontPanel.ErrorCode.NoError)
@@ -308,7 +308,7 @@ namespace AtticusServer
             lock (lockObj)
             {
                 // Send the device a start trigger.
-                com.opalkelly.frontpanel.okCFrontPanel.ErrorCode errorCode = opalKellyDevice.ActivateTriggerIn(0x40, 0);
+                OpalKelly.FrontPanel.okCFrontPanel.ErrorCode errorCode = opalKellyDevice.ActivateTriggerIn(0x40, 0);
                 if (errorCode != okCFrontPanel.ErrorCode.NoError)
                 {
                     throw new Exception("Unable to send software start trigger to FPGA device. " + errorCode.ToString());
@@ -353,7 +353,7 @@ namespace AtticusServer
         {
             lock (lockObj)
             {
-                com.opalkelly.frontpanel.okCFrontPanel.ErrorCode errorCode;
+                OpalKelly.FrontPanel.okCFrontPanel.ErrorCode errorCode;
                 // Send the device an abort trigger.
                 errorCode = opalKellyDevice.ActivateTriggerIn(0x40, 1);
                 if (errorCode != okCFrontPanel.ErrorCode.NoError)
