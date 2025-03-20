@@ -1,11 +1,10 @@
 bin/
 obj/
+ReleaseBuilds/
 *.clg
 *.set
 *.seq
 *.cache
-*.dll
-*.bit
 *.backup
 *.licx
 *.dat
